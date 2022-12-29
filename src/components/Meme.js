@@ -1,4 +1,6 @@
-import React from "react"
+import React, {useRef} from "react"
+// import html2canvas from 'html2canvas';
+import domtoimage from 'dom-to-image';
 
 export default function Meme() {
     const [meme, setMeme] = React.useState({
@@ -14,6 +16,23 @@ export default function Meme() {
         .then(data => setAllMemes(data.data.memes))
     }, [])
     
+
+    const divRef = useRef(null);
+    function handleSave() {
+        domtoimage.toPng(divRef.current, {
+          quality: 0.95,
+          width: 800,
+          height: 600
+        }).then(dataUrl => {
+          const aElement = document.createElement("a");
+          aElement.download = "my-meme";
+          aElement.href = dataUrl;
+          aElement.click();
+        });
+      }
+
+    
+
     function getMemeImage() {
         const randomNumber = Math.floor(Math.random() * allMemes.length)
         const url = allMemes[randomNumber].url
@@ -31,6 +50,9 @@ export default function Meme() {
             [name]: value
         }))
     }
+
+
+    
     
     return (
         <main>
@@ -54,12 +76,15 @@ export default function Meme() {
                 <button 
                     className="form--button"
                     onClick={getMemeImage}
+                    class="button left"
                 >
-                    Get a new meme image 🖼
+                    Get a new meme image 🖼️
                 </button>
+                <button onClick={handleSave} className="form--button" class="button right">Save Meme 💾</button>
             </div>
-            <div className="meme">
+            <div className="meme" ref={divRef}>
                 <img src={meme.randomImage} className="meme--image" alt="randomImage"/>
+
                 <h2 className="meme--text top">{meme.topText}</h2>
                 <h2 className="meme--text bottom">{meme.bottomText}</h2>
             </div>
